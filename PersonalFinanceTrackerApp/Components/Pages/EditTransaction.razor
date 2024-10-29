@@ -1,0 +1,72 @@
+﻿@page "/edit-transaction/{id:int}"
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject NavigationManager NavigationManager
+@using PersonalFinanceTrackerApp.Models
+
+<h3>Edit Transaction</h3>
+
+@if (transaction != null)
+{
+    <div class="form-group">
+        <label>Category</label>
+        <input @bind="transaction.Category" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Amount</label>
+        <input type="number" @bind="transaction.Amount" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Date</label>
+        <input type="date" @bind="transaction.Date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Type</label>
+        <select @bind="transaction.Type" class="form-control">
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </select>
+    </div>
+
+    <button @onclick="SaveTransactionAsync" class="btn btn-primary">Save</button>
+    <button @onclick="NavigateBack" class="btn btn-secondary ml-2">Back</button>
+}
+else
+{
+    <p>Loading transaction...</p>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; } // ID of the transaction to edit
+
+    private Transaction? transaction;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the transaction by its ID
+        transaction = (await TransactionService.GetAllTransactionsAsync()).FirstOrDefault(t => t.Id == id);
+
+        if (transaction == null)
+        {
+            // Navigate back if the transaction is not found
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task SaveTransactionAsync()
+    {
+        if (transaction != null)
+        {
+            // Update the transaction using TransactionService
+            await TransactionService.UpdateTransactionAsync(transaction.Id, transaction.Category, transaction.Amount, transaction.Date, transaction.Type);
+
+            // Navigate back to the transactions list
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

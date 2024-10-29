@@ -1,0 +1,47 @@
+﻿@page "/add-transaction"
+@using PersonalFinanceTrackerApp.Models
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Add New Transaction</h3>
+
+<div class="form-group">
+    <label>Category</label>
+    <input @bind="newTransaction.Category" class="form-control" placeholder="Enter category (e.g., Food, Rent)" />
+</div>
+<div class="form-group">
+    <label>Amount</label>
+    <input type="number" @bind="newTransaction.Amount" class="form-control" placeholder="Enter amount" />
+</div>
+<div class="form-group">
+    <label>Date</label>
+    <input type="date" @bind="newTransaction.Date" class="form-control" />
+</div>
+<div class="form-group">
+    <label>Type</label>
+    <select @bind="newTransaction.Type" class="form-control">
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+    </select>
+</div>
+
+<button @onclick="SaveTransactionAsync" class="btn btn-primary">Save</button>
+<button @onclick="NavigateBack" class="btn btn-secondary ml-2">Back</button>
+
+@code {
+    private Transaction newTransaction = new Transaction();
+
+    private async Task SaveTransactionAsync()
+    {
+        // Call the service to add a new transaction
+        await TransactionService.AddTransactionAsync(newTransaction.Category, newTransaction.Amount, newTransaction.Date, newTransaction.Type);
+
+        // Navigate back to the transactions list after saving
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

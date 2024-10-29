@@ -1,0 +1,65 @@
+﻿@page "/summary"
+@using PersonalFinanceTrackerApp.Models
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Financial Summary</h3>
+
+@if (financialSummary != null)
+{
+    <p><strong>Total Income:</strong> @financialSummary.TotalIncome.ToString("C")</p>
+    <p><strong>Total Expenses:</strong> @financialSummary.TotalExpenses.ToString("C")</p>
+    <p><strong>Balance:</strong> @financialSummary.Balance.ToString("C")</p>
+}
+else
+{
+    <p>Loading financial summary...</p>
+}
+
+<button @onclick="NavigateBack" class="btn btn-secondary mt-3">Back</button>
+
+<h3>Category Summary</h3>
+
+@if (categorySummary.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Income</th>
+                <th>Expenses</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in categorySummary)
+            {
+                <tr>
+                    <td>@category.Category</td>
+                    <td>@category.Income.ToString("C")</td>
+                    <td>@category.Expenses.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading category summary...</p>
+}
+
+
+@code {
+    private FinancialSummary? financialSummary;
+    private List<CategorySummary> categorySummary = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        financialSummary = await TransactionService.GetFinancialSummaryAsync();
+        categorySummary = await TransactionService.GetCategorySummaryAsync();
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/"); // Change "/" to the desired route if needed
+    }
+}

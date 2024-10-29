@@ -1,0 +1,74 @@
+﻿@page "/"
+@using PersonalFinanceTrackerApp.Models
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Transaction List</h3>
+
+<button @onclick="CreateNewTransaction" class="btn btn-primary mb-3">Add New Transaction</button>
+<button @onclick="NavigateToSummary" class="btn btn-info mb-3">View Summary</button>
+
+
+@if (transactions != null && transactions.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>@transaction.Category</td>
+                    <td>@transaction.Amount.ToString("C")</td>
+                    <td>@transaction.Date.ToString("d")</td>
+                    <td>@transaction.Type</td>
+                    <td>
+                        <button @onclick="() => EditTransaction(transaction.Id)" class="btn btn-warning btn-sm">Edit</button>
+                        <button @onclick="() => DeleteTransactionAsync(transaction.Id)" class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No transactions available.</p>
+}
+
+@code {
+    private List<Transaction> transactions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await TransactionService.GetAllTransactionsAsync();
+    }
+
+    private async Task DeleteTransactionAsync(int id)
+    {
+        await TransactionService.DeleteTransactionAsync(id);
+        transactions = await TransactionService.GetAllTransactionsAsync();
+    }
+
+    private void CreateNewTransaction()
+    {
+        NavigationManager.NavigateTo("/add-transaction");
+    }
+
+    private void EditTransaction(int id)
+    {
+        NavigationManager.NavigateTo($"/edit-transaction/{id}");
+    }
+
+    private void NavigateToSummary()
+    {
+        NavigationManager.NavigateTo("/summary");
+    }
+}
