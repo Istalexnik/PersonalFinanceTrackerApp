@@ -1,6 +1,6 @@
 ﻿@page "/summary"
 @using PersonalFinanceTrackerApp.Models
-@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject PersonalFinanceTrackerApp.Data.TransactionRepository TransactionRepository
 @inject NavigationManager NavigationManager
 
 <h3>Financial Summary</h3>
@@ -47,19 +47,29 @@ else
     <p>Loading category summary...</p>
 }
 
-
 @code {
-    private FinancialSummary? financialSummary;
+    private FinancialSummary financialSummary = new();
     private List<CategorySummary> categorySummary = new();
 
     protected override async Task OnInitializedAsync()
     {
-        financialSummary = await TransactionService.GetFinancialSummaryAsync();
-        categorySummary = await TransactionService.GetCategorySummaryAsync();
+        var transactions = await TransactionRepository.GetTransactionsAsync();
+        financialSummary.TotalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+        financialSummary.TotalExpenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+
+        categorySummary = transactions
+            .GroupBy(t => t.Category)
+            .Select(g => new CategorySummary
+                {
+                    Category = g.Key,
+                    Income = g.Where(t => t.Type == "Income").Sum(t => t.Amount),
+                    Expenses = g.Where(t => t.Type == "Expense").Sum(t => t.Amount)
+                })
+            .ToList();
     }
 
     private void NavigateBack()
     {
-        NavigationManager.NavigateTo("/"); // Change "/" to the desired route if needed
+        NavigationManager.NavigateTo("/");
     }
 }

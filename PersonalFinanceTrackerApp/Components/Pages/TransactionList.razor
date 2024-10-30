@@ -1,13 +1,12 @@
 ﻿@page "/"
 @using PersonalFinanceTrackerApp.Models
-@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
+@inject PersonalFinanceTrackerApp.Data.TransactionRepository TransactionRepository
 @inject NavigationManager NavigationManager
 
 <h3>Transaction List</h3>
 
 <button @onclick="CreateNewTransaction" class="btn btn-primary mb-3">Add New Transaction</button>
 <button @onclick="NavigateToSummary" class="btn btn-info mb-3">View Summary</button>
-
 
 @if (transactions != null && transactions.Any())
 {
@@ -48,13 +47,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        transactions = await TransactionService.GetAllTransactionsAsync();
+        transactions = await TransactionRepository.GetTransactionsAsync();
     }
 
     private async Task DeleteTransactionAsync(int id)
     {
-        await TransactionService.DeleteTransactionAsync(id);
-        transactions = await TransactionService.GetAllTransactionsAsync();
+        await TransactionRepository.DeleteTransactionAsync(id);
+        transactions = await TransactionRepository.GetTransactionsAsync(); // Refresh the list after deletion
     }
 
     private void CreateNewTransaction()
