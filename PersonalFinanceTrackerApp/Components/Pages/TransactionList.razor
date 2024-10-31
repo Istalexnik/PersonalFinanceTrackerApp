@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using PersonalFinanceTrackerApp.Models
-@inject PersonalFinanceTrackerApp.Data.TransactionRepository TransactionRepository
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
 @inject NavigationManager NavigationManager
 
 <h3>Transaction List</h3>
@@ -47,13 +47,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        transactions = await TransactionRepository.GetTransactionsAsync();
+        transactions = await TransactionService.GetAllTransactionsAsync();
     }
 
     private async Task DeleteTransactionAsync(int id)
     {
-        await TransactionRepository.DeleteTransactionAsync(id);
-        transactions = await TransactionRepository.GetTransactionsAsync(); // Refresh the list after deletion
+        await TransactionService.DeleteTransactionAsync(id);
+        transactions = await TransactionService.GetAllTransactionsAsync();
     }
 
     private void CreateNewTransaction()

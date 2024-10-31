@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PersonalFinanceTrackerApp.Data;
+using PersonalFinanceTrackerApp.Services;
 
 namespace PersonalFinanceTrackerApp
 {
@@ -21,7 +22,9 @@ namespace PersonalFinanceTrackerApp
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
+            builder.Services.AddSingleton<TransactionService>();
             builder.Services.AddSingleton<TransactionRepository>();
+
 
             return builder.Build();
         }

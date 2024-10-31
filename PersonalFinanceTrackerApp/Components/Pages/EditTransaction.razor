@@ -1,5 +1,5 @@
 ﻿@page "/edit-transaction/{id:int}"
-@inject PersonalFinanceTrackerApp.Data.TransactionRepository TransactionRepository
+@inject PersonalFinanceTrackerApp.Services.TransactionService TransactionService
 @inject NavigationManager NavigationManager
 @using PersonalFinanceTrackerApp.Models
 
@@ -43,8 +43,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Fetch the transaction by its ID directly from TransactionRepository
-        transaction = (await TransactionRepository.GetTransactionsAsync()).FirstOrDefault(t => t.Id == id);
+        // Fetch the transaction by its ID using TransactionService
+        transaction = (await TransactionService.GetAllTransactionsAsync()).FirstOrDefault(t => t.Id == id);
 
         if (transaction == null)
         {
@@ -57,8 +57,8 @@ else
     {
         if (transaction != null)
         {
-            // Update the transaction directly using TransactionRepository
-            await TransactionRepository.UpdateTransactionAsync(transaction);
+            // Update the transaction using TransactionService
+            await TransactionService.UpdateTransactionAsync(transaction.Id, transaction.Category, transaction.Amount, transaction.Date, transaction.Type);
 
             // Navigate back to the transactions list
             NavigationManager.NavigateTo("/");
